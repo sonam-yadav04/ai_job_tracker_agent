@@ -29,7 +29,7 @@ def extract_job_details(raw_text: str) -> dict:
                         "role":"user",
                         "content":raw_text
                     }
-                 ],
+                ],
 
 
         response_format={"type": "json_object"},
