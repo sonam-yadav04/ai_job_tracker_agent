@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 from job_tools import(get_application_count,save_job,check_duplicate)
 api_key = os.environ.get("GROQ_API_KEY")
-client = Groq(api_key)
+client = Groq(api_key=api_key)
 
 MODEL = "qwen/qwen3.8-27b"
 
