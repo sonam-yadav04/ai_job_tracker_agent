@@ -97,62 +97,55 @@ def run_agent(user_message:str)->str:
         {"role":"user", "content" : user_message }
 
     ]
-    resp = client.chat.completions.create(
-        model=MODEL,
-        messages=messages,
-        tools=tools,
-        tool_choice="auto",
-        max_tokens=500,
-        )
-    msg = resp.choices[0].message
-    if not msg.tool_calls:
-        return msg.content or ""
-
-    messages .append({
-        "role":"assistant",
-        "content":msg.content,
-        "tool_calls":[{
-          "id":call.id,
-          "type":"function",
-          "function":{
-            "name":call.function.name,
-            "arguments":call.function.arguments
-          },
-        }
-        for call in messages.tool_calls
-        ],
-    })
-    for call in messages.tool_calls:
-        function_name = call.function_name
-        function = available_funcs.get(function_name)
-        try:
-            arguments = json.loads(call.function.arguments)
-
-            if function is None:
-                result = {"error": f"Unknown tool: {function_name}"}
-            else:
-                result = function(**arguments)
-
-        except (json.JSONDecodeError, TypeError, ValueError) as error:
-            result = {"error": str(error)}
-        except Exception as error:
-            result = {"error": f"Tool execution failed: {error}"}
-        
-        messages.append({
-          "role":"tool",
-          "tool_call_id":call.id,
-          "contnet":json.dumps(result,ensure_ascii=False),
-        })
-        try:
-          response_2 = client.chat.completions.create(
+    for _ in range(5):   
+        resp = client.chat.completions.create(
             model=MODEL,
             messages=messages,
-            max_tokens=200,
-          )
-          msg_2 = response_2.choices[0].message
-          return msg_2.content or ""
-        except Exception as error:
-          return "I couldn't complete the request within the allowed tool-call rounds."
+            tools=tools,
+            tool_choice="auto",
+            max_tokens=500,
+            )
+        msg = resp.choices[0].message
+        if not msg.tool_calls:
+            return msg.content or ""
+
+        messages .append({
+            "role":"assistant",
+            "content":msg.content,
+            "tool_calls":[{
+              "id":call.id,
+              "type":"function",
+              "function":{
+                "name":call.function.name,
+                "arguments":call.function.arguments
+              },
+            }
+            for call in messages.tool_calls
+            ],
+        })
+        for call in messages.tool_calls:
+            function_name = call.function_name
+            function = available_funcs.get(function_name)
+            try:
+                arguments = json.loads(call.function.arguments)
+
+                if function is None:
+                    result = {"error": f"Unknown tool: {function_name}"}
+                else:
+                    result = function(**arguments)
+
+            except (json.JSONDecodeError, TypeError, ValueError) as error:
+                result = {"error": str(error)}
+            except Exception as error:
+                result = {"error": f"Tool execution failed: {error}"}
+            
+            messages.append({
+              "role":"tool",
+              "tool_call_id":call.id,
+              "contnet":json.dumps(result,ensure_ascii=False),
+            })
+        
+    return "I couldn't complete the request within the allowed tool-call rounds."
 
  
         
