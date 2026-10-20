@@ -49,7 +49,7 @@ def scrape_job_url(url:str) -> str:
       
         text = "\n".join(lines)
         # Keep the input manageable for the LLM in this exercise.
-        return text[:15000]
+        return text[:50000]
     except Exception as e:
         return f"Failed to scrape {url}: {e}"
       
