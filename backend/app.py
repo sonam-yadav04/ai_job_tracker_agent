@@ -6,10 +6,6 @@ from agent import run_agent
 from job_tools import jobs , get_application_count
 
 
-# ---------------------------
-# Page configuration
-# ---------------------------
-
 st.set_page_config(
     page_title="AI Job Tracker",
     page_icon="💼",
