@@ -20,7 +20,7 @@ st.title("💼 AI Job Tracker")
 st.caption("Scrape job postings, extract details, and track opportunities.")
 
 st.sidebar.info(
-    "Phase 1: Jobs are stored in memory and will be lost "
+    "Jobs are stored in memory and will be lost "
     "when the application process restarts."
 )
 
