@@ -69,10 +69,10 @@ tools = [
                "status":
                {
                 "type":"string",
-                "description":"Optional. 'all' for total, or 'saved'/'applied'/'rejected'. Defaults to 'all'.",
+                "description":" 'all' for total, or 'saved'/'applied'/'rejected'. Defaults to 'all'.",
                }
              },
-             "required":["status"]
+            
            },
          } , 
         }, 
@@ -106,10 +106,11 @@ def run_agent(user_message:str)->str:
             max_tokens=500,
             )
         msg = resp.choices[0].message
+        print("DEBUG tool_calls for testing:", msg.tool_calls)
         if not msg.tool_calls:
             return msg.content or ""
 
-        messages .append({
+        messages.append({
             "role":"assistant",
             "content":msg.content,
             "tool_calls":[{
@@ -120,11 +121,11 @@ def run_agent(user_message:str)->str:
                 "arguments":call.function.arguments
               },
             }
-            for call in messages.tool_calls
+            for call in msg.tool_calls
             ],
         })
-        for call in messages.tool_calls:
-            function_name = call.function_name
+        for call in msg.tool_calls:
+            function_name = call.function.name
             function = available_funcs.get(function_name)
             try:
                 arguments = json.loads(call.function.arguments)
@@ -142,7 +143,7 @@ def run_agent(user_message:str)->str:
             messages.append({
               "role":"tool",
               "tool_call_id":call.id,
-              "contnet":json.dumps(result,ensure_ascii=False),
+              "content":json.dumps(result,ensure_ascii=False),
             })
         
     return "I couldn't complete the request within the allowed tool-call rounds."
